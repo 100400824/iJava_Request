@@ -91,6 +91,13 @@ public class JHttpRequestSample extends AbstractJavaSamplerClient {
         System.out.println("最终结果：" + result);
     }
 
+    public static boolean zpwTEST(){
+
+
+        return false;
+    }
+
+
     /**
      * 测试请求实际运行
      * @param hostname: Host or IP
