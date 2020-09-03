@@ -11,12 +11,13 @@ import org.apache.jmeter.threads.JMeterVariables;
 public class JHttpRequestSample extends AbstractJavaSamplerClient {
     /**
      * Get default parameter from the java request sampler.
+     *
      * @return arguments
      */
     @Override
     public Arguments getDefaultParameters() {
         Arguments params = new Arguments();
-        params.addArgument("hostname","default_host");
+        params.addArgument("hostname", "default_host");
         return params;
     }
 
@@ -44,7 +45,7 @@ public class JHttpRequestSample extends AbstractJavaSamplerClient {
      * @param arg0
      * @return
      */
-    public SampleResult runTest(JavaSamplerContext arg0) {
+/*    public SampleResult runTest(JavaSamplerContext arg0) {
         //从JMeter的全局变量中获取参数值
         JMeterVariables jMeterVariables = arg0.getJMeterVariables();
         String port = jMeterVariables.get("port");
@@ -79,29 +80,79 @@ public class JHttpRequestSample extends AbstractJavaSamplerClient {
         }
         sampleResult.sampleEnd();
         return sampleResult;
+    }*/
+
+
+    public SampleResult runTest(JavaSamplerContext arg0) {
+        SampleResult sampleResult = new SampleResult();
+        sampleResult.sampleStart();
+        //运行接口测试组合代码，接口1 -> 接口4
+        String hostname = "error.youjyi.cn";
+        String port = "443";
+        String username = "user01";
+        String password = "pwd";
+        boolean testResult = JHttpRequestSample.zpwTEST(hostname, port, username, password);
+        if (testResult) {
+            sampleResult.setSuccessful(true); //设定成功条件下的Java Request 结果为成功
+            String succMsg = "Menu restfulAPI test success.";
+            sampleResult.setResponseData(succMsg.getBytes());
+            System.out.println(succMsg);
+
+        } else {
+            sampleResult.setSuccessful(false); //设定成功条件下的Java Request 结果为失败
+            String failMsg = "Menu restfulAPI test failed.";
+            sampleResult.setResponseData(failMsg.getBytes());
+            System.out.println(failMsg);
+        }
+        sampleResult.sampleEnd();
+        return sampleResult;
     }
+
+
 
     public static void main(String[] args) {
         //实验代码
-        String hostname = "localhost";
-        String port = "9091";
+        String hostname = "error.youjyi.cn";
+        String port = "443";
         String username = "user01";
         String password = "pwd";
-        boolean result = JHttpRequestSample.menuRestfulAPITest(hostname, port, username, password);
+//        boolean result = JHttpRequestSample.menuRestfulAPITest(hostname, port, username, password);
+        boolean result = JHttpRequestSample.zpwTEST(hostname, port, username, password);
+
         System.out.println("最终结果：" + result);
+
     }
 
-    public static boolean zpwTEST(){
+    public static boolean zpwTEST(String hostname, String port, String username, String password) {
+        String protocal = "https";
+        String access_token = "";
 
+        String path1 = "/api/apm/performance";
+        String url1 = protocal + "://" + hostname  + path1;
 
-        return false;
+        System.out.println("URL:" + url1);
+
+        String reqData1 = "{\"project_id\":4,\"origin_pathname\":\"https://zx.k44o5xh.cn/forecastzhougongjiemengbundle/index.html\",\"jsHeapSizeLimit\":2172649472,\"totalJSHeapSize\":15136310,\"usedJSHeapSize\":5898662,\"redirectCount\":0,\"type\":0,\"appCache\":2,\"dns\":32,\"connection\":140,\"request\":80,\"response\":4,\"loading\":84,\"rendering\":1138,\"blankScreen\":1370,\"domComplete\":1889,\"loaded\":1889,\"loadEvent\":0}";
+        String respData1 = HttpClient.sendPost(url1, reqData1, access_token);
+
+        System.out.println("responseEntity :" + respData1);
+
+        String retcode1 = JSONParser.getJsonValue(respData1, "code");
+        if (!"1".equalsIgnoreCase(retcode1)) {  //校验接口1的返回code是否等于200
+            System.out.println("1. 登录接口请求失败！" + " return code = " + retcode1);
+            return false;
+        }
+        System.out.println("1. 登录接口请求成功");
+
+        return true;
     }
 
 
     /**
      * 测试请求实际运行
+     *
      * @param hostname: Host or IP
-     * @param port: 端口
+     * @param port:     端口
      * @param username: 用户名
      * @param password: 密码
      * @return
